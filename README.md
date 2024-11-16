@@ -33,7 +33,7 @@ The datasets like [CASME II](http://casme.psych.ac.cn/casme/c2) and [SAMM](https
 ```
 Running data.py makes datasets for each subject:
 ```
-$ python data.py
+$ python data.py --dataset SAMM
 ```
 ## Train & Evaluate 
 If you have already made ME datasets, you can simply train FDP like this:
