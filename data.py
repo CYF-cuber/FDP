@@ -19,7 +19,49 @@ import math
 
 import sys
 
+def get_dynamic_image(frames, normalized=True):
+    """ Takes a list of frames and returns either a raw or normalized dynamic image."""
+    num_channels = frames[0].shape[2]                                                        # num_channels = 3
+    channel_frames = _get_channel_frames(frames, num_channels)                               # channel_frames.shape = (3, 51, 316, 274, 1)
+     
+    channel_dynamic_images = [_compute_dynamic_image(channel) for channel in channel_frames] # channel.shape = (51, 316, 274, 1) 
+                                                                                             # channel_dynamic_images = (3, 316, 274, 1) 
+    dynamic_image = cv2.merge(tuple(channel_dynamic_images))
+    if normalized:
+        dynamic_image = cv2.normalize(dynamic_image, None, 0, 255, norm_type=cv2.NORM_MINMAX)
+        dynamic_image = dynamic_image.astype('uint8')
 
+    return dynamic_image
+
+def _get_channel_frames(iter_frames, num_channels):
+    """ Takes a list of frames and returns a list of frame lists split by channel. """
+    frames = [[] for channel in range(num_channels)] # frames = [[] [] []]
+    for frame in iter_frames:
+        for channel_frames, channel in zip(frames, cv2.split(frame)):                       # b, g ,r =cv2.split(frame) channel_frames=[], channel.shape = (316,274)
+            channel_frames.append(channel.reshape((channel.shape[0], channel.shape[1], 1))) # python2                                       #  =  (1,316,274,1)
+    for i in range(len(frames)):                                                            # frames.shape = (3, 51, 316, 274, 1)
+        frames[i] = np.array(frames[i])
+    return frames
+
+def _compute_dynamic_image(frames):
+    """ Inspired by https://github.com/hbilen/dynamic-image-nets """
+    num_frames, h, w, depth = frames.shape                                              # = 51 316 274 1
+    y   = np.zeros((num_frames, h, w, depth))                                           # = 51*316*274*1
+    ids = np.ones(num_frames)                                                           # = 51*1                              
+    fw  = np.zeros(num_frames)                                                          # shape = (51,)    fw is the score (frame weight)
+
+    for n in range(num_frames):    
+        cumulative_indices = np.array(range(n, num_frames)) + 1
+        fw[n] = np.sum(((2*cumulative_indices) - num_frames-1) / cumulative_indices)      # python 3 & 2 # fw = [-4/3, 2/3, 2/3 ] when numframes = 3 
+
+    for v in range(int(np.max(ids))):                                # v = 0 all the time ?
+        indv = np.array(np.where(ids == v+1))                        # shape = (1,51)  (0,1,...,50)
+        a1 = frames[indv, :, :, :]                                   # a1 = frames ???   a1.shape=(1,3,224,224,1)
+        a2 = np.reshape(fw, (indv.shape[1], 1, 1, 1))                # a2.shape = (3,1,1,1)  a2 is the b in paper?
+        a3 = a1 * a2                                                 # (1,3,h,w,1) * (3,1,1,1) = (1,3,h,w,1)
+        y = np.sum(a3[0], axis=0)                                    # y.shape = (h, w, 1)
+    return y 
+    
 def align_face(img, img_land, box_enlarge, img_size):
 
     leftEye0 = (img_land[2 * 37] + img_land[2 * 38] + img_land[2 * 39] + img_land[2 * 40] + img_land[2 * 41] +
@@ -135,7 +177,9 @@ class videoDataset(Dataset):
             #cv2.imwrite("/mnt/data/experiments/micro-expression-recognition-master/Frequency_MER/img/test_ali.jpg",align_img)
 
             frames.append(align_img)
-
+            
+        #dy_img = get_dynamic_image(frames_dyimg)
+        
         frames = np.asarray(frames)
         print(frames.shape)
         
