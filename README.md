@@ -8,6 +8,7 @@ Our model is implemented with PyTorch 1.13.0 and Python 3.9.
 ```
 $ pip install -r requirements.txt
 ```
+2.Download [Dlib 68_landmarks predictor weight](http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2) 
 
 3.Make training and testing datasets:
 The datasets like [CASME II](http://casme.psych.ac.cn/casme/c2) and [SAMM](https://helward.mmu.ac.uk/STAFF/M.Yap/dataset.php), and should follow such folder structure.
