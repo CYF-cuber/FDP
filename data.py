@@ -21,7 +21,6 @@ import sys
 
 image_rows, image_columns, image_depth = 64, 64, 8
 VIDEO_LENGTH = 8
-sequence_loss = nn.MSELoss(reduction="mean")#SeqLoss(test_mode=True)
 
 def get_dynamic_image(frames, normalized=True):
     """ Takes a list of frames and returns either a raw or normalized dynamic image."""
@@ -245,7 +244,6 @@ class videoDataset(Dataset):
                 continue
             self.video_list.append(videoarray)
             self.dyimg_list.append(dy_img)
-            # 添加标签
             self.video_labels.append(class_num % 5)
 
 if __name__ == "__main__":
@@ -290,7 +288,6 @@ if __name__ == "__main__":
     videos = [os.listdir(i) for i in video_list]
 
     for sub in range(len(LOSO)):
-        #model = nextvit_MER_v3()
         subject = LOSO[sub]
         test_list = [[],[],[],[],[]]
         for cla in range(len(videos)):
