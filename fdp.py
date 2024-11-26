@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 from cgi import print_arguments
 import numpy as np
@@ -10,7 +9,6 @@ import torch.utils.checkpoint as checkpoint
 from einops import rearrange
 from timm.models.layers import DropPath, trunc_normal_
 from timm.models.registry import register_model
-#from nextvit_utils import merge_pre_bn
 NORM_EPS = 1e-5
 
 class ConvBNReLU(nn.Module):
