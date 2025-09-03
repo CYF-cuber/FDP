@@ -1,5 +1,5 @@
 # FDP
-Micro-Expression Recognition via Fine-Grained Dynamic Perception
+Micro-Expression Recognition via Fine-Grained Dynamic Perception (TOMM 2025)
 
 Our model is implemented with PyTorch 1.13.0 and Python 3.9. 
 
